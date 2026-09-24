@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作價值觀探索系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            50: '#FDFBF7',
+                            100: '#F4EFE6',
+                            200: '#E6D7C3',
+                            300: '#D9C3B0',
+                            400: '#C8A98F',
+                            500: '#B28B6A',
+                            600: '#946E4E',
+                            700: '#735237',
+                            800: '#4A3B32',
+                            900: '#2D231E',
+                        },
+                        rust: {
+                            500: '#C86D51',
+                            600: '#B0583D',
+                        },
+                        olive: {
+                            500: '#7A8B6E',
+                            600: '#627356',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #FDFBF7;
+            color: #4A3B32;
+            font-family: 'Noto Sans TC', sans-serif;
+            touch-action: manipulation;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(217, 195, 176, 0.5);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 15px -3px rgba(74, 59, 50, 0.08), 0 2px 6px -2px rgba(74, 59, 50, 0.04);
+        }
+        .card-shadow-hover:hover {
+            box-shadow: 0 10px 20px -3px rgba(74, 59, 50, 0.15), 0 4px 8px -2px rgba(74, 59, 50, 0.08);
+            transform: translateY(-2px);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Pulse Animation for Online Indicator */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .pulse-dot {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F4EFE6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D9C3B0;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-rust-500 selection:text-white">
+
+    <header class="w-full bg-earth-800 text-earth-50 py-3.5 px-4 sm:px-6 shadow-md sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-rust-500 flex items-center justify-center text-white shadow">
+                    <i class="fa-solid fa-compass text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-wide">工作價值觀探索遊戲</h1>
+                </div>
+            </div>
+
+            <!-- Header Right Stats & Controls -->
+            <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                <!-- Realtime Online Counter -->
+                <div class="flex items-center gap-2 bg-earth-900/60 px-3 py-1.5 rounded-full border border-earth-700/60 shadow-inner">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="pulse-dot absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-earth-300 font-medium">線上：<strong id="online-users-count" class="text-emerald-400 font-bold">1</strong> 人</span>
+                </div>
+
+                <!-- User Badge (If Logged In) -->
+                <div id="header-user-info" class="hidden text-xs sm:text-sm font-medium bg-earth-700/60 px-3 py-1.5 rounded-full border border-earth-600/40">
+                    <i class="fa-solid fa-user text-earth-300 mr-1.5"></i>
+                    <span id="display-user-name">玩家</span>
+                </div>
+
+                <!-- Admin Entrance Button -->
+                <button onclick="openAdminModal()" class="bg-earth-700 hover:bg-rust-500 text-earth-100 px-3 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-1.5 border border-earth-600/50 shadow-sm">
+                    <i class="fa-solid fa-user-shield text-rust-500 hover:text-white"></i>
+                    <span>管理者登入</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+
+        <!-- ================= PAGE 1: PLAYER NAME INPUT ================= -->
+        <section id="page-1" class="animate-fade-in my-auto py-6">
+            <div class="max-w-md mx-auto glass-card rounded-2xl p-6 sm:p-8 card-shadow text-center border-t-4 border-rust-500">
+                <div class="w-20 h-20 bg-earth-100 rounded-full flex items-center justify-center mx-auto mb-5 text-rust-500 shadow-inner">
+                    <i class="fa-solid fa-gem text-3xl"></i>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-earth-800 mb-2">探索你的職涯金鑰</h2>
+                <p class="text-earth-600 text-sm mb-6">歡迎來到工作價值觀探索遊戲！透過多輪競標與抉擇，找出你內心最看重的工作核心價值。</p>
+                
+                <div class="space-y-4 text-left mb-6">
+                    <label for="player-name-input" class="block text-sm font-semibold text-earth-700">
+                        <i class="fa-solid fa-signature mr-1 text-rust-500"></i> 請輸入您的姓名或暱稱
+                    </label>
+                    <input type="text" id="player-name-input" placeholder="例如：王小明" 
+                        class="w-full px-4 py-3 rounded-xl border border-earth-300 focus:outline-none focus:ring-2 focus:ring-rust-500 focus:border-transparent bg-white text-earth-800 placeholder-earth-400 text-base transition"
+                        onkeyup="checkNameInput()">
+                    <p id="name-error" class="text-xs text-rust-600 hidden font-medium">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i>請填寫您的姓名以開始探索！
+                    </p>
+                </div>
+
+                <button onclick="submitPlayerName()" 
+                    class="w-full py-3.5 px-6 rounded-xl bg-rust-500 hover:bg-rust-600 text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+                    <span>開始遊戲旅程</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: VALUE INTRO & RULES ================= -->
+        <section id="page-2" class="hidden animate-fade-in max-w-2xl mx-auto w-full my-auto py-6">
+            <div class="glass-card rounded-2xl p-6 sm:p-8 card-shadow border-t-4 border-olive-500 space-y-6">
+                
+                <div class="text-center border-b border-earth-200 pb-4">
+                    <span class="bg-olive-500/10 text-olive-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">概念與規則說明</span>
+                    <h2 class="text-2xl font-bold text-earth-800 mt-2">什麼是工作價值觀？</h2>
+                </div>
+
+                <div class="bg-earth-100/70 p-4 rounded-xl border border-earth-200 text-earth-700 text-sm sm:text-base leading-relaxed">
+                    <p class="font-medium">
+                        <i class="fa-solid fa-quote-left text-rust-500 text-lg mr-2"></i>
+                        工作價值觀指個人對工作的想法、看法和認定的標準。工作價值觀是人追求與工作有關的目標，從工作中想獲得的東西。
+                        <i class="fa-solid fa-quote-right text-rust-500 text-lg ml-2"></i>
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-earth-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-gavel text-rust-500"></i> 遊戲抉擇規則
+                    </h3>
+                    <ul class="space-y-3 text-sm text-earth-700">
+                        <li class="flex items-start gap-3 bg-white p-3 rounded-lg border border-earth-200">
+                            <span class="w-6 h-6 rounded-full bg-rust-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</span>
+                            <span>總共有 <strong>30 個工作價值觀</strong>，將分為 <strong>6 回合</strong> 出現，每回合隨機顯示 5 張卡牌。</span>
+                        </li>
+                        <li class="flex items-start gap-3 bg-white p-3 rounded-lg border border-earth-200">
+                            <span class="w-6 h-6 rounded-full bg-rust-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</span>
+                            <span>請依照重要性，對出現的價值觀進行選擇與排序。</span>
+                        </li>
+                        <li class="flex items-start gap-3 bg-white p-3 rounded-lg border border-earth-200">
+                            <span class="w-6 h-6 rounded-full bg-rust-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</span>
+                            <span>您的「價值觀背包」<strong>最多只能保留 10 張卡牌</strong>。當超過 10 張時，必須進行抉擇與淘汰，剔除較不重視的選項。</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="startBiddingGame()" 
+                        class="w-full py-3.5 px-6 rounded-xl bg-olive-500 hover:bg-olive-600 text-white font-bold text-lg shadow-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>開始第 1 回合遊戲</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: GAMEPLAY & ROUNDS ================= -->
+        <section id="page-3" class="hidden animate-fade-in space-y-6 my-4">
+            
+            <!-- Game Header Status Bar -->
+            <div class="bg-earth-800 text-white rounded-xl p-4 shadow-md flex flex-wrap justify-between items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <span id="round-badge" class="bg-rust-500 text-xs font-bold px-3 py-1 rounded-full uppercase">第 1 / 6 回合</span>
+                    <span class="text-earth-200 text-xs sm:text-sm">遊戲進度：<strong id="drawn-count" class="text-white">5</strong> / 30</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-suitcase text-earth-300"></i>
+                    <span>已保留：<strong id="kept-count" class="text-rust-500 bg-white px-2.5 py-0.5 rounded-md font-bold">0</strong> / 10 張</span>
+                </div>
+            </div>
+
+            <!-- Area 1: New Drawn Cards Selection -->
+            <div id="auction-pool-container" class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-earth-800 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-hand-holding-dollar text-rust-500"></i> 本回合選擇的價值觀 (點擊加入背包)
+                    </h3>
+                    <span class="text-xs text-earth-600 bg-earth-200 px-2 py-0.5 rounded">點擊卡牌選擇</span>
+                </div>
+
+                <div id="drawn-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Cards will be dynamically injected here -->
+                </div>
+            </div>
+
+            <!-- Area 2: Main Kept Backpack (Limit 10) -->
+            <div class="glass-card rounded-2xl p-5 border-2 border-dashed border-earth-300 space-y-3">
+                <div class="flex justify-between items-center flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-earth-800 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-box-archive text-olive-500"></i> 我的最愛價值觀背包
+                        </h3>
+                        <span id="limit-warning" class="hidden text-xs text-rust-600 font-bold bg-rust-500/10 px-2 py-1 rounded-md animate-pulse">
+                            ⚠️ 超過10張上限！請汰換
+                        </span>
+                    </div>
+                    <span class="text-xs text-earth-600">按重要性順序排列 (Top 1 最重要)</span>
+                </div>
+
+                <div id="kept-cards-list" class="min-h-[120px] space-y-2">
+                    <!-- Kept cards list injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Control Action Button -->
+            <div class="pt-2">
+                <button id="next-round-btn" onclick="handleNextRound()" 
+                    class="w-full py-3.5 px-6 rounded-xl bg-rust-500 hover:bg-rust-600 text-white font-bold text-lg shadow-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-2">
+                    <span id="btn-text">下一回合競標</span>
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 4: PLAYER FINAL RESULTS ================= -->
+        <section id="page-4" class="hidden animate-fade-in space-y-6 my-6">
+            
+            <div class="glass-card rounded-2xl p-6 text-center card-shadow border-t-4 border-rust-500 space-y-3">
+                <div class="w-16 h-16 bg-rust-500/10 text-rust-500 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-earth-800"><span id="result-user-name" class="text-rust-500"></span> 的工作價值觀檔案</h2>
+                <p class="text-earth-600 text-sm max-w-lg mx-auto">
+                    經過多輪抉擇與淘汰，以下是您最終保留的 10 個價值觀清單與分類歸納。這代表了您現階段在工作中最渴望獲取的成長與回報！
+                </p>
+                <div id="result-timestamp" class="text-xs text-earth-600 italic"></div>
+            </div>
+
+            <!-- Categorized Results Section -->
+            <div class="space-y-4">
+                <h3 class="font-bold text-earth-800 text-xl flex items-center gap-2 border-b border-earth-200 pb-2">
+                    <i class="fa-solid fa-layer-group text-olive-500"></i> 六大工作價值觀分類分佈
+                </h3>
+
+                <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Category Cards injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Top Kept List Ranking -->
+            <div class="glass-card rounded-2xl p-6 card-shadow space-y-4">
+                <h3 class="font-bold text-earth-800 text-lg flex items-center gap-2 border-b border-earth-200 pb-2">
+                    <i class="fa-solid fa-list-ol text-rust-500"></i> 您的價值觀重要度最終排行 (保留項目)
+                </h3>
+                <div id="final-ranking-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <!-- Final ranking cards injected here -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                <button onclick="restartGame()" class="flex-1 py-3 px-4 rounded-xl bg-earth-200 hover:bg-earth-300 text-earth-800 font-bold shadow transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>重新進行遊戲</span>
+                </button>
+                <button onclick="window.print()" class="flex-1 py-3 px-4 rounded-xl bg-earth-800 hover:bg-earth-900 text-white font-bold shadow transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i>
+                    <span>列印 / 儲存個人結果</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 5: ADMIN DASHBOARD VIEW ================= -->
+        <section id="page-admin" class="hidden animate-fade-in space-y-6 my-4">
+            
+            <!-- Dashboard Header Bar -->
+            <div class="bg-earth-900 text-white p-5 rounded-2xl shadow-lg flex flex-wrap justify-between items-center gap-4 border-b-4 border-rust-500">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-rust-500 text-white text-xs px-2.5 py-0.5 rounded font-bold uppercase">Admin Center</span>
+                        <h2 class="text-2xl font-bold">全體測驗數據分析與管理後台</h2>
+                    </div>
+                    <p class="text-xs text-earth-300 mt-1">即時檢視所有遊戲者填答記錄、全體統計圖表與資料導出</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>一鍵匯出 CSV 報表</span>
+                    </button>
+                    <button onclick="exitAdmin()" class="bg-earth-700 hover:bg-earth-600 text-earth-200 px-3.5 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>返回遊戲</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Overview Stat Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="glass-card p-5 rounded-xl border-l-4 border-rust-500 card-shadow flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-earth-600 font-semibold uppercase">總參與遊戲人數</div>
+                        <div id="stat-total-players" class="text-3xl font-extrabold text-earth-800 mt-1">0</div>
+                    </div>
+                    <div class="w-12 h-12 bg-rust-500/10 text-rust-500 rounded-full flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border-l-4 border-olive-500 card-shadow flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-earth-600 font-semibold uppercase">平均每人保留數</div>
+                        <div id="stat-avg-kept" class="text-3xl font-extrabold text-earth-800 mt-1">0.0</div>
+                    </div>
+                    <div class="w-12 h-12 bg-olive-500/10 text-olive-500 rounded-full flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5 rounded-xl border-l-4 border-amber-500 card-shadow flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-earth-600 font-semibold uppercase">熱門指標價值觀</div>
+                        <div id="stat-top-value" class="text-lg font-bold text-earth-800 mt-1 truncate max-w-[160px]">尚無數據</div>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart A: Top 10 Values Overall -->
+                <div class="glass-card rounded-2xl p-5 card-shadow space-y-4">
+                    <h3 class="font-bold text-earth-800 text-lg flex items-center gap-2 border-b border-earth-200 pb-2">
+                        <i class="fa-solid fa-ranking-star text-rust-500"></i> 全體最受重視價值觀 Top 10
+                    </h3>
+                    <div id="top-values-chart-list" class="space-y-2.5 text-xs">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Chart B: 6 Category Distribution -->
+                <div class="glass-card rounded-2xl p-5 card-shadow space-y-4">
+                    <h3 class="font-bold text-earth-800 text-lg flex items-center gap-2 border-b border-earth-200 pb-2">
+                        <i class="fa-solid fa-chart-bar text-olive-500"></i> 六大價值觀全體選取次數分佈
+                    </h3>
+                    <div id="category-distribution-chart" class="space-y-3 text-xs">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 card-shadow space-y-4">
+                <div class="flex flex-wrap justify-between items-center gap-3 border-b border-earth-200 pb-3">
+                    <h3 class="font-bold text-earth-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-earth-700"></i> 玩家詳細測驗紀錄清單
+                    </h3>
+
+                    <!-- Search and Danger Actions -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-earth-400 text-xs"></i>
+                            <input type="text" id="admin-search-input" placeholder="搜尋玩家姓名..." onkeyup="renderAdminTable()"
+                                class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-earth-300 text-xs focus:outline-none focus:ring-1 focus:ring-rust-500">
+                        </div>
+                        <button onclick="confirmClearAllRecords()" class="bg-rust-500/10 hover:bg-rust-500 hover:text-white text-rust-600 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 shrink-0">
+                            <i class="fa-solid fa-trash-arrow-up"></i>
+                            <span>清空全部紀錄</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-earth-100/80 text-earth-800 font-bold uppercase border-b border-earth-200">
+                            <tr>
+                                <th class="p-3">#</th>
+                                <th class="p-3">玩家姓名</th>
+                                <th class="p-3">測驗時間</th>
+                                <th class="p-3">保留之 10 個價值觀 (依重要性)</th>
+                                <th class="p-3">六大分類總覽</th>
+                                <th class="p-3 text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-records-tbody" class="divide-y divide-earth-200/60">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-xs text-earth-600 border-t border-earth-200 mt-8">
+        <p>© 工作價值觀探索遊戲 | 協助您探索職涯真實渴望</p>
+    </footer>
+
+    <div id="custom-modal" class="hidden fixed inset-0 bg-earth-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center card-shadow space-y-4 animate-fade-in border-t-4 border-rust-500">
+            <div id="modal-icon" class="w-12 h-12 bg-rust-500/10 text-rust-500 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h4 id="modal-title" class="text-lg font-bold text-earth-800">提示</h4>
+            <p id="modal-msg" class="text-sm text-earth-600">這是提示訊息</p>
+            <button onclick="closeModal()" class="w-full py-2.5 rounded-xl bg-rust-500 hover:bg-rust-600 text-white font-bold transition">
+                我知道了
+            </button>
+        </div>
+    </div>
+
+    <div id="admin-login-modal" class="hidden fixed inset-0 bg-earth-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 card-shadow space-y-4 animate-fade-in border-t-4 border-earth-800">
+            <div class="flex justify-between items-center border-b border-earth-200 pb-2">
+                <h4 class="text-lg font-bold text-earth-800 flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-rust-500"></i> 管理者登入
+                </h4>
+                <button onclick="closeAdminModal()" class="text-earth-400 hover:text-earth-700">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-earth-600">請輸入管理員密碼以進入全體分析儀表板。</p>
+
+            <div class="space-y-2">
+                <input type="password" id="admin-password-input" placeholder="請輸入密碼" 
+                    class="w-full px-4 py-2.5 rounded-xl border border-earth-300 focus:outline-none focus:ring-2 focus:ring-earth-800 text-sm">
+                <p id="admin-pass-error" class="text-xs text-rust-600 hidden font-bold">
+                    <i class="fa-solid fa-circle-xmark mr-1"></i>密碼不正確！
+                </p>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeAdminModal()" class="flex-1 py-2.5 rounded-xl bg-earth-200 text-earth-800 font-bold text-sm hover:bg-earth-300 transition">
+                    取消
+                </button>
+                <button onclick="verifyAdminLogin()" class="flex-1 py-2.5 rounded-xl bg-earth-800 text-white font-bold text-sm hover:bg-earth-900 transition">
+                    登入
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Game State
+        let playerName = "";
+        let currentRound = 1;
+        const totalRounds = 6;
+        const cardsPerRound = 5;
+        const maxKeptLimit = 10;
+        const ADMIN_PASS = "admin123";
+
+        // Realtime Users Simulator State
+        let onlineUsers = 12;
+
+        // All 30 Work Values with exact category mappings and FontAwesome icons
+        const ALL_WORK_VALUES = [
+            // 一、自我實現
+            { id: 1, text: "能發揮所長", category: "自我實現", icon: "fa-brain" },
+            { id: 2, text: "能獲得成就感與自信", category: "自我實現", icon: "fa-trophy" },
+            { id: 3, text: "從事自己喜歡的工作", category: "自我實現", icon: "fa-heart" },
+            { id: 4, text: "得到合適的職位展現能力", category: "自我實現", icon: "fa-id-badge" },
+            { id: 5, text: "能持續性學習與成長", category: "自我實現", icon: "fa-seedling" },
+            
+            // 二、自由創意
+            { id: 6, text: "能進行嘗試與創新", category: "自由創意", icon: "fa-lightbulb" },
+            { id: 7, text: "能自己規劃工作方式與進度", category: "自由創意", icon: "fa-sliders" },
+            { id: 8, text: "能選擇喜歡的生活方式", category: "自由創意", icon: "fa-compass" },
+            { id: 9, text: "能自由分配自己的時間", category: "自由創意", icon: "fa-clock" },
+            { id: 10, text: "工作性質多樣不單調", category: "自由創意", icon: "fa-palette" },
+            
+            // 三、安全穩定
+            { id: 11, text: "合理的工作內容與負荷", category: "安全穩定", icon: "fa-scale-balanced" },
+            { id: 12, text: "組織制度完善公平", category: "安全穩定", icon: "fa-building-shield" },
+            { id: 13, text: "有舒適的工作空間環境", category: "安全穩定", icon: "fa-couch" },
+            { id: 14, text: "不被干擾的工作環境", category: "安全穩定", icon: "fa-shield-halved" },
+            { id: 15, text: "工作環境安全設備齊全", category: "安全穩定", icon: "fa-hard-hat" },
+            
+            // 四、豐厚報酬
+            { id: 16, text: "得到自己滿意的報酬", category: "豐厚報酬", icon: "fa-sack-dollar" },
+            { id: 17, text: "除薪資外有額外的工作福利", category: "豐厚報酬", icon: "fa-gift" },
+            { id: 18, text: "有穩定的收入保障", category: "豐厚報酬", icon: "fa-vault" },
+            { id: 19, text: "有升遷的管道", category: "豐厚報酬", icon: "fa-chart-line" },
+            { id: 20, text: "有加薪的機會", category: "豐厚報酬", icon: "fa-arrow-up-right-dots" },
+            
+            // 五、聲望地位
+            { id: 21, text: "有好的社會地位與聲望", category: "聲望地位", icon: "fa-crown" },
+            { id: 22, text: "能主導重要事情，擔任管理者", category: "聲望地位", icon: "fa-user-tie" },
+            { id: 23, text: "能服務與協助他人", category: "聲望地位", icon: "fa-hands-holding-child" },
+            { id: 24, text: "能受到人群重視", category: "聲望地位", icon: "fa-users" },
+            { id: 25, text: "能受到敬重與崇拜", category: "聲望地位", icon: "fa-star" },
+            
+            // 六、人際關係
+            { id: 26, text: "有機會認識不同的人", category: "人際關係", icon: "fa-network-wired" },
+            { id: 27, text: "家人朋友支持我的選擇", category: "人際關係", icon: "fa-people-roof" },
+            { id: 28, text: "能獲得他人認可與讚賞", category: "人際關係", icon: "fa-thumbs-up" },
+            { id: 29, text: "有好相處與關懷支持的同事", category: "人際關係", icon: "fa-user-group" },
+            { id: 30, text: "能認識不同的人，拓展人脈", category: "人際關係", icon: "fa-address-book" }
+        ];
+
+        // 6 Categories standard metadata
+        const CATEGORY_META = {
+            "自我實現": { color: "bg-amber-100 text-amber-800 border-amber-300", barColor: "bg-amber-500", icon: "fa-brain" },
+            "自由創意": { color: "bg-sky-100 text-sky-800 border-sky-300", barColor: "bg-sky-500", icon: "fa-lightbulb" },
+            "安全穩定": { color: "bg-emerald-100 text-emerald-800 border-emerald-300", barColor: "bg-emerald-500", icon: "fa-shield-halved" },
+            "豐厚報酬": { color: "bg-rose-100 text-rose-800 border-rose-300", barColor: "bg-rose-500", icon: "fa-sack-dollar" },
+            "聲望地位": { color: "bg-purple-100 text-purple-800 border-purple-300", barColor: "bg-purple-500", icon: "fa-crown" },
+            "人際關係": { color: "bg-teal-100 text-teal-800 border-teal-300", barColor: "bg-teal-500", icon: "fa-user-group" }
+        };
+
+        let shuffledPool = [];
+        let currentDrawnCards = [];
+        let keptCards = [];
+
+        function initOnlineUsersPresence() {
+            // Generate realistic random baseline
+            onlineUsers = Math.floor(Math.random() * 8) + 8; // 8-15
+            document.getElementById('online-users-count').textContent = onlineUsers;
+
+            setInterval(() => {
+                const delta = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                onlineUsers = Math.max(3, onlineUsers + delta);
+                document.getElementById('online-users-count').textContent = onlineUsers;
+            }, 4500);
+        }
+
+        // Page Router Helper
+        function showPage(pageId) {
+            ['page-1', 'page-2', 'page-3', 'page-4', 'page-admin'].forEach(id => {
+                const el = document.getElementById(id);
+                if (id === pageId) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showAlert(title, msg) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-msg').textContent = msg;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function checkNameInput() {
+            const val = document.getElementById('player-name-input').value.trim();
+            if (val) {
+                document.getElementById('name-error').classList.add('hidden');
+            }
+        }
+
+        function submitPlayerName() {
+            const input = document.getElementById('player-name-input');
+            const val = input.value.trim();
+            if (!val) {
+                document.getElementById('name-error').classList.remove('hidden');
+                return;
+            }
+            playerName = val;
+            document.getElementById('display-user-name').textContent = playerName;
+            document.getElementById('header-user-info').classList.remove('hidden');
+            
+            showPage('page-2');
+        }
+
+        function startBiddingGame() {
+            shuffledPool = [...ALL_WORK_VALUES].sort(() => Math.random() - 0.5);
+            currentRound = 1;
+            keptCards = [];
+            
+            loadRoundData();
+            showPage('page-3');
+        }
+
+        function loadRoundData() {
+            const startIndex = (currentRound - 1) * cardsPerRound;
+            currentDrawnCards = shuffledPool.slice(startIndex, startIndex + cardsPerRound);
+
+            document.getElementById('round-badge').textContent = `第 ${currentRound} / ${totalRounds} 回合`;
+            document.getElementById('drawn-count').textContent = startIndex + currentDrawnCards.length;
+            
+            if (currentRound === totalRounds) {
+                document.getElementById('btn-text').textContent = "完成遊戲！查看最終分析";
+            } else {
+                document.getElementById('btn-text').textContent = "進入下一回合遊戲";
+            }
+
+            renderDrawnCards();
+            renderKeptCards();
+        }
+
+        function renderDrawnCards() {
+            const container = document.getElementById('drawn-cards-grid');
+            container.innerHTML = "";
+
+            if (currentDrawnCards.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-4 text-center text-sm text-earth-600 italic bg-earth-100/50 rounded-xl">
+                        <i class="fa-solid fa-check-circle text-olive-500 mr-1"></i>本回合卡牌已全數加入背包或評估完畢
+                    </div>
+                `;
+                return;
+            }
+
+            currentDrawnCards.forEach((card) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = "bg-white p-3.5 rounded-xl border border-earth-300 card-shadow hover:border-rust-500 flex items-center justify-between gap-3 cursor-pointer transition active:scale-95";
+                cardEl.onclick = () => selectCardToKept(card.id);
+                
+                cardEl.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-rust-500/10 text-rust-500 flex items-center justify-center shrink-0">
+                            <i class="fa-solid ${card.icon} text-lg"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-earth-800 text-sm">${card.text}</div>
+                            <div class="text-[11px] text-earth-600">${card.category}</div>
+                        </div>
+                    </div>
+                    <button class="w-8 h-8 rounded-full bg-earth-100 hover:bg-rust-500 hover:text-white text-earth-700 flex items-center justify-center shrink-0 transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                `;
+                container.appendChild(cardEl);
+            });
+        }
+
+        function renderKeptCards() {
+            const container = document.getElementById('kept-cards-list');
+            const keptCountEl = document.getElementById('kept-count');
+            const limitWarning = document.getElementById('limit-warning');
+
+            keptCountEl.textContent = keptCards.length;
+
+            if (keptCards.length > maxKeptLimit) {
+                keptCountEl.classList.add('text-white', 'bg-rust-500');
+                keptCountEl.classList.remove('text-rust-500', 'bg-white');
+                limitWarning.classList.remove('hidden');
+            } else {
+                keptCountEl.classList.remove('text-white', 'bg-rust-500');
+                keptCountEl.classList.add('text-rust-500', 'bg-white');
+                limitWarning.classList.add('hidden');
+            }
+
+            container.innerHTML = "";
+
+            if (keptCards.length === 0) {
+                container.innerHTML = `
+                    <div class="py-8 text-center text-earth-600 text-sm">
+                        <i class="fa-solid fa-box-open text-2xl text-earth-300 mb-2 block"></i>
+                        背包目前是空的，請上方點擊本回合出現的價值觀加入！
+                    </div>
+                `;
+                return;
+            }
+
+            keptCards.forEach((card, index) => {
+                const isOverLimit = index >= maxKeptLimit;
+                const cardEl = document.createElement('div');
+                cardEl.className = `p-3 rounded-xl border flex items-center justify-between gap-2 transition ${
+                    isOverLimit ? 'bg-rust-50 border-rust-300' : 'bg-white border-earth-200 card-shadow'
+                }`;
+
+                cardEl.innerHTML = `
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="w-6 h-6 rounded-full ${isOverLimit ? 'bg-rust-500 text-white' : 'bg-earth-800 text-white'} text-xs font-bold flex items-center justify-center shrink-0">
+                            ${index + 1}
+                        </span>
+                        <div class="w-8 h-8 rounded-lg bg-earth-100 text-earth-700 flex items-center justify-center shrink-0">
+                            <i class="fa-solid ${card.icon} text-sm"></i>
+                        </div>
+                        <div class="truncate">
+                            <div class="font-bold text-earth-800 text-sm truncate">${card.text}</div>
+                            <div class="text-[10px] text-earth-600">${card.category}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="moveKeptCard(${index}, -1)" ${index === 0 ? 'disabled class="opacity-30 p-1.5"' : 'class="p-1.5 text-earth-600 hover:text-earth-900"'} title="上移">
+                            <i class="fa-solid fa-arrow-up text-xs"></i>
+                        </button>
+                        <button onclick="moveKeptCard(${index}, 1)" ${index === keptCards.length - 1 ? 'disabled class="opacity-30 p-1.5"' : 'class="p-1.5 text-earth-600 hover:text-earth-900"'} title="下移">
+                            <i class="fa-solid fa-arrow-down text-xs"></i>
+                        </button>
+                        <button onclick="removeKeptCard(${index})" class="p-1.5 text-rust-500 hover:text-rust-700 ml-1" title="淘汰捨棄">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(cardEl);
+            });
+        }
+
+        function selectCardToKept(cardId) {
+            const cardObj = currentDrawnCards.find(c => c.id === cardId);
+            if (!cardObj) return;
+
+            keptCards.push(cardObj);
+            currentDrawnCards = currentDrawnCards.filter(c => c.id !== cardId);
+
+            renderDrawnCards();
+            renderKeptCards();
+        }
+
+        function moveKeptCard(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= keptCards.length) return;
+            
+            const temp = keptCards[index];
+            keptCards[index] = keptCards[targetIndex];
+            keptCards[targetIndex] = temp;
+
+            renderKeptCards();
+        }
+
+        function removeKeptCard(index) {
+            keptCards.splice(index, 1);
+            renderKeptCards();
+        }
+
+        function handleNextRound() {
+            if (keptCards.length > maxKeptLimit) {
+                showAlert(
+                    "背包數量超過上限！", 
+                    `您的背包目前有 ${keptCards.length} 張價值觀，最多只能保留 10 張！請點擊垃圾桶圖示淘汰 ${keptCards.length - maxKeptLimit} 張較不重要的卡牌。`
+                );
+                return;
+            }
+
+            if (currentRound < totalRounds) {
+                currentRound++;
+                loadRoundData();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                savePlayerRecordToStorage();
+                renderFinalResults();
+                showPage('page-4');
+            }
+        }
+
+        function getStoredRecords() {
+            try {
+                const recs = localStorage.getItem('work_values_records');
+                return recs ? JSON.parse(recs) : [];
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function savePlayerRecordToStorage() {
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getDate().toString().padStart(2,'0')} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            
+            // Calculate category breakdown
+            const catStats = { "自我實現": 0, "自由創意": 0, "安全穩定": 0, "豐厚報酬": 0, "聲望地位": 0, "人際關係": 0 };
+            keptCards.forEach(c => {
+                if (catStats[c.category] !== undefined) catStats[c.category]++;
+            });
+
+            const newRecord = {
+                id: Date.now(),
+                name: playerName || "匿名玩家",
+                timestamp: timeStr,
+                keptCards: keptCards.map(c => ({ id: c.id, text: c.text, category: c.category })),
+                categoryStats: catStats
+            };
+
+            const records = getStoredRecords();
+            records.unshift(newRecord);
+            localStorage.setItem('work_values_records', JSON.stringify(records));
+        }
+
+        function renderFinalResults() {
+            document.getElementById('result-user-name').textContent = playerName;
+            
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+            document.getElementById('result-timestamp').textContent = `測驗完成時間：${timeStr}`;
+
+            const categoryCounts = { "自我實現": [], "自由創意": [], "安全穩定": [], "豐厚報酬": [], "聲望地位": [], "人際關係": [] };
+
+            keptCards.forEach(card => {
+                if (categoryCounts[card.category]) {
+                    categoryCounts[card.category].push(card);
+                }
+            });
+
+            const catGrid = document.getElementById('categories-grid');
+            catGrid.innerHTML = "";
+
+            Object.keys(categoryCounts).forEach(catName => {
+                const items = categoryCounts[catName];
+                const meta = CATEGORY_META[catName];
+
+                const cardEl = document.createElement('div');
+                cardEl.className = `p-4 rounded-xl border ${meta.color} space-y-3 shadow-sm`;
+
+                let listHtml = "";
+                if (items.length === 0) {
+                    listHtml = `<div class="text-xs opacity-60 italic">無保留此類別之價值觀</div>`;
+                } else {
+                    listHtml = `<ul class="space-y-1.5 text-xs font-semibold">`;
+                    items.forEach(item => {
+                        listHtml += `<li class="flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-xs"></i> ${item.text}</li>`;
+                    });
+                    listHtml += `</ul>`;
+                }
+
+                cardEl.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-current/20 pb-2">
+                        <div class="font-bold text-sm flex items-center gap-2">
+                            <i class="fa-solid ${meta.icon}"></i>
+                            <span>${catName}</span>
+                        </div>
+                        <span class="text-xs bg-white/60 px-2 py-0.5 rounded-full font-bold">
+                            ${items.length} 項
+                        </span>
+                    </div>
+                    ${listHtml}
+                `;
+                catGrid.appendChild(cardEl);
+            });
+
+            const rankList = document.getElementById('final-ranking-list');
+            rankList.innerHTML = "";
+
+            if (keptCards.length === 0) {
+                rankList.innerHTML = `<div class="col-span-full text-center text-sm text-earth-600">您未保留任何價值觀卡牌</div>`;
+                return;
+            }
+
+            keptCards.forEach((card, idx) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = "bg-earth-100/60 p-3 rounded-lg border border-earth-200 flex items-center gap-3";
+                itemEl.innerHTML = `
+                    <span class="w-6 h-6 rounded-full bg-rust-500 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                        ${idx + 1}
+                    </span>
+                    <div class="w-7 h-7 rounded bg-white text-earth-700 flex items-center justify-center shrink-0">
+                        <i class="fa-solid ${card.icon} text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-earth-800 text-xs">${card.text}</div>
+                        <div class="text-[10px] text-earth-600">${card.category}</div>
+                    </div>
+                `;
+                rankList.appendChild(itemEl);
+            });
+        }
+
+        function restartGame() {
+            document.getElementById('player-name-input').value = "";
+            showPage('page-1');
+        }
+
+        function openAdminModal() {
+            document.getElementById('admin-password-input').value = "";
+            document.getElementById('admin-pass-error').classList.add('hidden');
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-login-modal').classList.add('hidden');
+        }
+
+        function verifyAdminLogin() {
+            const pass = document.getElementById('admin-password-input').value;
+            if (pass === ADMIN_PASS) {
+                closeAdminModal();
+                loadAdminDashboard();
+                showPage('page-admin');
+            } else {
+                document.getElementById('admin-pass-error').classList.remove('hidden');
+            }
+        }
+
+        function exitAdmin() {
+            showPage('page-1');
+        }
+
+        function loadAdminDashboard() {
+            renderAdminAnalytics();
+            renderAdminTable();
+        }
+
+        function renderAdminAnalytics() {
+            const records = getStoredRecords();
+            
+            // Total players
+            document.getElementById('stat-total-players').textContent = records.length;
+
+            if (records.length === 0) {
+                document.getElementById('stat-avg-kept').textContent = "0.0";
+                document.getElementById('stat-top-value').textContent = "尚無數據";
+                document.getElementById('top-values-chart-list').innerHTML = `<div class="text-earth-500 italic py-4 text-center">尚無任何玩家紀錄</div>`;
+                document.getElementById('category-distribution-chart').innerHTML = `<div class="text-earth-500 italic py-4 text-center">尚無任何玩家紀錄</div>`;
+                return;
+            }
+
+            // Average Kept
+            const totalKept = records.reduce((acc, r) => acc + (r.keptCards ? r.keptCards.length : 0), 0);
+            document.getElementById('stat-avg-kept').textContent = (totalKept / records.length).toFixed(1);
+
+            // Frequency map for Top Values and Categories
+            const valueFreq = {};
+            const categoryFreq = { "自我實現": 0, "自由創意": 0, "安全穩定": 0, "豐厚報酬": 0, "聲望地位": 0, "人際關係": 0 };
+
+            records.forEach(r => {
+                if (r.keptCards) {
+                    r.keptCards.forEach(card => {
+                        valueFreq[card.text] = (valueFreq[card.text] || 0) + 1;
+                        if (categoryFreq[card.category] !== undefined) {
+                            categoryFreq[card.category]++;
+                        }
+                    });
+                }
+            });
+
+            // Top 10 Values Calculation
+            const sortedValues = Object.keys(valueFreq).map(key => ({
+                text: key,
+                count: valueFreq[key]
+            })).sort((a, b) => b.count - a.count);
+
+            if (sortedValues.length > 0) {
+                document.getElementById('stat-top-value').textContent = sortedValues[0].text;
+            }
+
+            // Render Top 10 Chart List
+            const topChartContainer = document.getElementById('top-values-chart-list');
+            topChartContainer.innerHTML = "";
+
+            const top10 = sortedValues.slice(0, 10);
+            const maxValCount = top10.length > 0 ? top10[0].count : 1;
+
+            top10.forEach((item, index) => {
+                const percent = Math.round((item.count / maxValCount) * 100);
+                const el = document.createElement('div');
+                el.className = "space-y-1";
+                el.innerHTML = `
+                    <div class="flex justify-between items-center text-earth-800 font-semibold">
+                        <span><strong class="text-rust-500 mr-1.5">#${index+1}</strong> ${item.text}</span>
+                        <span class="text-xs text-earth-600 font-bold">${item.count} 次</span>
+                    </div>
+                    <div class="w-full bg-earth-200/60 rounded-full h-2 overflow-hidden">
+                        <div class="bg-rust-500 h-2 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                topChartContainer.appendChild(el);
+            });
+
+            // Render 6 Category Distribution Chart
+            const catChartContainer = document.getElementById('category-distribution-chart');
+            catChartContainer.innerHTML = "";
+
+            const totalCatPicks = Object.values(categoryFreq).reduce((a, b) => a + b, 0) || 1;
+
+            Object.keys(categoryFreq).forEach(catName => {
+                const count = categoryFreq[catName];
+                const meta = CATEGORY_META[catName];
+                const percent = Math.round((count / totalCatPicks) * 100);
+
+                const el = document.createElement('div');
+                el.className = "space-y-1";
+                el.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-earth-800 flex items-center gap-1.5">
+                            <i class="fa-solid ${meta.icon} text-xs"></i> ${catName}
+                        </span>
+                        <span class="text-xs text-earth-600">${count} 次 (${percent}%)</span>
+                    </div>
+                    <div class="w-full bg-earth-200/60 rounded-full h-2.5 overflow-hidden">
+                        <div class="${meta.barColor} h-2.5 rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                catChartContainer.appendChild(el);
+            });
+        }
+
+        function renderAdminTable() {
+            const records = getStoredRecords();
+            const searchKeyword = (document.getElementById('admin-search-input').value || "").toLowerCase().trim();
+            const tbody = document.getElementById('admin-records-tbody');
+            tbody.innerHTML = "";
+
+            const filtered = records.filter(r => r.name.toLowerCase().includes(searchKeyword));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-earth-500 italic">
+                            尚無符合條件的測驗紀錄
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach((rec, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-earth-100/50 transition";
+
+                // Format Kept Values String
+                const valuesBadges = rec.keptCards ? rec.keptCards.map((c, i) => 
+                    `<span class="inline-block bg-white border border-earth-300 rounded px-1.5 py-0.5 text-[11px] mr-1 mb-1 font-medium text-earth-800">${i+1}.${c.text}</span>`
+                ).join("") : "無";
+
+                // Format Categories summary
+                let catSummaryStr = "";
+                if (rec.categoryStats) {
+                    Object.keys(rec.categoryStats).forEach(cName => {
+                        if (rec.categoryStats[cName] > 0) {
+                            catSummaryStr += `<span class="text-[10px] bg-earth-200/70 text-earth-800 px-1.5 py-0.5 rounded mr-1">${cName}:${rec.categoryStats[cName]}</span>`;
+                        }
+                    });
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-earth-600">${idx + 1}</td>
+                    <td class="p-3 font-bold text-earth-800">${rec.name}</td>
+                    <td class="p-3 text-earth-600 text-[11px] whitespace-nowrap">${rec.timestamp}</td>
+                    <td class="p-3 max-w-xs">${valuesBadges}</td>
+                    <td class="p-3">${catSummaryStr}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteRecord(${rec.id})" class="text-rust-500 hover:text-rust-700 p-1 font-bold" title="刪除此紀錄">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteRecord(id) {
+            let records = getStoredRecords();
+            records = records.filter(r => r.id !== id);
+            localStorage.setItem('work_values_records', JSON.stringify(records));
+            loadAdminDashboard();
+        }
+
+        function confirmClearAllRecords() {
+            if (confirm("確定要清空所有遊戲者的測試紀錄嗎？此動作無法復原！")) {
+                localStorage.removeItem('work_values_records');
+                loadAdminDashboard();
+            }
+        }
+
+        function exportToCSV() {
+            const records = getStoredRecords();
+            if (records.length === 0) {
+                showAlert("匯出失敗", "目前無任何紀錄可供匯出！");
+                return;
+            }
+
+            // CSV Header
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += "玩家姓名,測驗時間,保留10個價值觀,自我實現,自由創意,安全穩定,豐厚報酬,聲望地位,人際關係\n";
+
+            records.forEach(r => {
+                const name = `"${(r.name || "").replace(/"/g, '""')}"`;
+                const time = `"${r.timestamp}"`;
+                
+                const keptStr = r.keptCards ? `"${r.keptCards.map((c, i) => `${i+1}.${c.text}`).join("; ")}"` : "";
+                
+                const cs = r.categoryStats || {};
+                const cat1 = cs["自我實現"] || 0;
+                const cat2 = cs["自由創意"] || 0;
+                const cat3 = cs["安全穩定"] || 0;
+                const cat4 = cs["豐厚報酬"] || 0;
+                const cat5 = cs["聲望地位"] || 0;
+                const cat6 = cs["人際關係"] || 0;
+
+                csvContent += `${name},${time},${keptStr},${cat1},${cat2},${cat3},${cat4},${cat5},${cat6}\n`;
+            });
+
+            // Trigger Download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `工作價值觀測驗紀錄彙整_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.onload = function() {
+            initOnlineUsersPresence();
+            showPage('page-1');
+        };
+    </script>
+</body>
+</html>
